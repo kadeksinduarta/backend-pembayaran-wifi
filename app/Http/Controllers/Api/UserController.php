@@ -15,16 +15,31 @@ class UserController extends Controller
     {
         $user = $request->user();
         
-        // Latest bill for this user
-        $latestPayment = UserPayment::where('user_id', $user->id)
-            ->with('bill')
-            ->latest()
-            ->first();
+        // 1. Fetch the latest global bill
+        $latestBill = WifiBill::latest()->first();
+
+        // 2. Fetch all members' status for this latest bill
+        $allMembers = [];
+        if ($latestBill) {
+            $allMembers = UserPayment::where('bill_id', $latestBill->id)
+                ->with('user')
+                ->get();
+        }
+
+        // 3. Find current user's specific payment record for this bill
+        $userPayment = null;
+        if ($latestBill) {
+            $userPayment = UserPayment::where('bill_id', $latestBill->id)
+                ->where('user_id', $user->id)
+                ->with('bill')
+                ->first();
+        }
 
         $settings = PaymentSetting::first();
 
         return response()->json([
-            'latest_payment' => $latestPayment,
+            'latest_payment' => $userPayment,
+            'all_members' => $allMembers,
             'payment_settings' => $settings,
             'user' => $user
         ]);
