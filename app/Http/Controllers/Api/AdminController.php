@@ -71,12 +71,14 @@ class AdminController extends Controller
         $validated = $request->validate([
             'month' => 'required|string',
             'total_amount' => 'required|numeric|min:0',
+            'wifi_password' => 'nullable|string',
         ]);
 
         return DB::transaction(function () use ($validated, $request) {
             $bill = WifiBill::create([
                 'month' => $validated['month'],
                 'total_amount' => $validated['total_amount'],
+                'wifi_password' => $request->wifi_password,
                 'created_by' => $request->user()->id,
             ]);
 
@@ -84,7 +86,7 @@ class AdminController extends Controller
             $count = $activeUsers->count();
 
             if ($count > 0) {
-                $amountPerUser = $validated['total_amount'] / $count;
+                $amountPerUser = 65000;
 
                 foreach ($activeUsers as $user) {
                     UserPayment::create([
@@ -99,6 +101,21 @@ class AdminController extends Controller
 
             return response()->json($bill->load('payments'), 201);
         });
+    }
+
+    public function updateBill(Request $request, $id)
+    {
+        $bill = WifiBill::findOrFail($id);
+        
+        $validated = $request->validate([
+            'month' => 'string',
+            'total_amount' => 'numeric|min:0',
+            'wifi_password' => 'nullable|string',
+        ]);
+
+        $bill->update($validated);
+        
+        return response()->json($bill);
     }
 
     public function deleteBill($id)

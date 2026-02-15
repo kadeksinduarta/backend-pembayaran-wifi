@@ -11,7 +11,8 @@ class WifiBill extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['month', 'total_amount', 'created_by'];
+    protected $fillable = ['month', 'total_amount', 'created_by', 'wifi_password'];
+    protected $hidden = ['wifi_password'];
 
     public function payments()
     {

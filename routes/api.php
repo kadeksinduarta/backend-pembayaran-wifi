@@ -21,6 +21,7 @@ Route::middleware('auth:sanctum')->group(function () {
         // Bill management
         Route::get('/bills', [AdminController::class, 'getBills']);
         Route::post('/bills', [AdminController::class, 'createBill']);
+        Route::put('/bills/{id}', [AdminController::class, 'updateBill']);
         Route::delete('/bills/{id}', [AdminController::class, 'deleteBill']);
 
         // Payment management

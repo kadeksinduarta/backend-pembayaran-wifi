@@ -33,6 +33,10 @@ class UserController extends Controller
                 ->where('user_id', $user->id)
                 ->with('bill')
                 ->first();
+
+            if ($userPayment && $userPayment->status === 'paid') {
+                $userPayment->bill->makeVisible('wifi_password');
+            }
         }
 
         $settings = PaymentSetting::first();
